@@ -1,0 +1,72 @@
+<title>Index</title>
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 1300px;
+        margin: 20px auto;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+    }
+</style>
+<p></p>
+<div class="container">
+    <div style="width: 90%;margin: 0 auto;">
+        <form id="deleteForm" method="post" action="{% url 'delete_selected_rows' %}">
+            {% csrf_token %}
+            <table id="dataTable" style="border-collapse: collapse; width: 100%;">
+                <thead style="position: sticky; top: 0; background-color: #c4c4be; z-index: 1;">
+                <tr>
+                    <th>Select</th>
+                    <th>Key words <a href="{% url 'delete_key_words' %}"><span>&#10507;</span></a>
+                    </th>
+                    <th>Link</th>
+                    <th>Date Created <a href="{% url 'delete_date_created' %}"><span>&#10507;</span></a>
+                    </th>
+                    <th>Last Click <a href="{% url 'delete_last_click_date' %}"><span>&#10507;</span></a>
+                    </th>
+                    <th>Click Times  <a href="{% url 'delete_click_times' %}"><span>&#10507;</span></a>
+                    </th>
+                </tr>
+                </thead>
+                <tbody style="position: relative; z-index: 0;">
+                {% for index in indexes %}
+                <tr>
+                    <td style="border: width: 10%;">
+                        <input type="checkbox" name="selected_rows" value="{{ index.id }}">
+                    </td>
+                    <td style="width: 30%;">{{ index.key_words }}</td>
+                    <td style="width: 10%">
+                        <a href="{{ index.address }}" target="_blank" class="btn btn-sm btn-info">open link</a>
+                    </td>
+                    <td style="width: 20%;">{{ index.date_created }}</td>
+                    <td style="width: 20%;">{{ index.last_click_date }}</td>
+                    <td style="width: 20%;">{{ index.click_times }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <button type="submit" class="btn btn-danger">Delete Selected Rows</button>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

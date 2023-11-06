@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* Add CSS styles for the "Cancel" button */
+    .btn-outline {
+        border: 1px solid black;
+        padding: 6px;
+        text-align: center;
+        width: 25%;
+    }
+    .btn-outline:hover {
+        background-color: grey; /* Change the background color to grey on hover */
+    }
+        /* CSS styles for input boxes to make them taller */
+    input[name="key_words"],
+    input[name="address"] {
+        width: 50%;
+        height: 40px; /* Adjust the height as needed */
+        margin-bottom: 20px; /* Add margin to create space between inputs */
+    }
+</style>
+
+<script>
+    window.addEventListener("load", function () {
+        const keyWordsInput = document.getElementsByName("key_words")[0];
+        keyWordsInput.focus(); // Focus on the input field
+        keyWordsInput.setSelectionRange(keyWordsInput.value.length, keyWordsInput.value.length); // Move cursor to the end
+    });
+</script>
+<div class="container">
+    <div style="text-align: center;">
+        <p></p>
+        <h5>Oops, No Found..., You Input..., more powerful index...</h5>
+        <p></p>
+        <hr>
+        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+
+            <label>Key_words</label>
+            <input name="key_words" placeholder="key word..." required autofocus style="width: 50%;"
+                   value="{{ request.GET.searchTerm|default:'' }}">
+             <P></P>
+            <label>Link_Address</label>
+            <input name="address" placeholder="Link address...." required style="width: 50%;"></input>
+            <P></P>
+            <button class="btn btn-outline" type="submit">Save</button>
+            <a class="btn btn-outline" href="{% url 'output_list' %}">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock content %}

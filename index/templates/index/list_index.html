@@ -1,0 +1,153 @@
+<title>Index</title>
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 1300px;
+        margin: 20px auto;
+    }
+
+    th, td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin: 0 auto;
+        margin-bottom: 10px;
+    }
+</style>
+<p></p>
+<div class="container">
+    <input type="text" id="searchInput" placeholder="Search for link..." autofocus>
+</div>
+<div style="width: 90%;margin: 0 auto;">
+    <table id="dataTable" style="border-collapse: collapse; width: 100%;">
+        <thead style="position: sticky; top: 0; background-color: #c4c4be; z-index: 1;">
+        <tr>
+            <th>Key words</th>
+            <th>Link</th>
+        </tr>
+        </thead>
+        <tbody style="position: relative; z-index: 0;">
+        {% for index in indexes %}
+        <tr>
+            <td style="border: width: 70%;">{{index.key_words}}</td>
+            <td style="width: 30%">
+                <a href="{{ index.address }}" target="_blank" class="btn btn-sm btn-info"
+                   onclick="recordClick({{ index.id }})">open link</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .custom-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: white;
+        border: 1px solid #ccc;
+        padding: 20px;
+        text-align: center;
+        z-index: 999;
+    }
+    .custom-dialog button {
+        margin: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const dataTable = document.getElementById('dataTable');
+    const noResultsURL = "{% url 'input' %}";  // Define the URL to open when no results are found
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = dataTable.querySelectorAll('tr');
+        let foundResults = false;
+
+        // Start the loop from index 1 to skip the header row (index 0)
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            const cells = row.querySelectorAll('td');
+            let rowContainsSearchTerm = false;
+
+            cells.forEach(function(cell) {
+                if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                    rowContainsSearchTerm = true;
+                }
+            });
+
+            if (rowContainsSearchTerm) {
+                row.style.display = '';
+                foundResults = true;  // Set to true if at least one matching row is found
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
+        // Check if no results were found and open the URL with the search term as a query parameter
+        if (!foundResults) {
+            window.location.href = `${noResultsURL}?searchTerm=${searchTerm}`;
+        }
+    });
+
+    function recordClick(indexId) {
+        const url = `/record_click/${indexId}/`;
+        const csrftoken = getCookie('csrftoken'); // Get the CSRF token
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken, // Include the CSRF token for POST request
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Handle success, e.g., you can display a message to the user
+                console.log('Click recorded');
+            } else {
+                // Handle errors, e.g., the index was not found
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => {
+            // Handle any network or other errors
+            console.error('Error:', error);
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === name + '=') {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+
+{% endblock content %}
